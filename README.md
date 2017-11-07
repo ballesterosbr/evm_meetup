@@ -4,7 +4,7 @@
 
 La máquina virtual Ethereum (EVM) es el entorno de tiempo de ejecución (runtime) para contratos inteligentes en Ethereum. Se encuentra aislado, lo que significa que el código que se ejecuta dentro de la EVM no tiene acceso a la red, sistema de archivos u otros procesos de la blockchain.
 
-Los contratos viven en la cadena de bloques en un formato binario específico de Ethereum (código de bytes EVM). Sin embargo, los contratos generalmente se escriben en un lenguaje de alto nivel de Ethereum, se compilan en código de bytes usando un compilador de EVM y finalmente se cargan en la cadena de bloques utilizando un cliente de Ethereum. Los contratos inteligentes pueden tener acceso limitado a otros contratos inteligentes.
+Los contratos viven en la cadena de bloques en un formato binario específico de Ethereum (EVM bytecode). Sin embargo, los contratos generalmente se escriben en un lenguaje de alto nivel de Ethereum, se compilan en bytecode usando un compilador de EVM y finalmente se cargan en la cadena de bloques utilizando un cliente de Ethereum. Los contratos inteligentes pueden tener acceso limitado a otros contratos inteligentes.
 
 ---
 
@@ -27,35 +27,36 @@ Para hacer todo esto de una forma segura se imponen las siguientes restricciones
 
 Cada nodo contiene su propia implementación de la EVM capaz de ejecutar las mismas operaciones, lo que facilita la labor de desarrolladores a la hora de tener un entorno de pruebas.
 
-Es una puerta de acceso a la creación de smart contracts en Solidity, pero también la EVM se ha implementado en Python, Ruby, C++ y otros códigos.
+Es una puerta de acceso a la creación de smart contracts en Solidity, pero también la EVM se ha implementado en Python, Ruby, C++ y otros lenguajes.
 
 ------------------------
 
 Interpretación de valores binarios de 256-bits como enteros. Cuando un dato de 256-bits se convierte hacia o desde una address o hash de 160-bits, se conservan los 20 bytes más a la derecha mientras que los otros 12 bytes se descartan o se rellenan con ceros.
 
-Aclaración big endian
-13 --> 0x3133 (como texto)
+Aclaración big endian --> MSB to LSB
+```
+13 --> 0x3133 
 trece --> 0x74726563650d0a
-MSB to LSB
+``` 
 
 ---
 
-Se podría decir que la EVM es una cuasi máquina de Turing; "cuasi" por el hecho de que la computación está intrínsecamente limitada por un factor, el gas, que limita la cantidad total de cálculo.
+Se podría decir que la EVM es una cuasi máquina de Turing; "cuasi" por el hecho de que la computación está intrínsecamente limitada por un factor, el Gas, que limita la cantidad total de cálculo.
 
 ---
 
 Basics
 
-Arquitectura basada en pila.
-Tamaño de palabra de 256-bits. --> Tamaño de elemento de pila 256-bits
-El modelo de memoria es una matriz de bytes (word-addressed byte array)
-Basado para facilitar el esquema la función keccack-256 y cálculos de curva elíptica.
-Tamaño máximo de la pila: 1024.
-Modelo de almacenamiento independiente: es una matriz de palabras direccionables (word addressable word array)
+- Arquitectura basada en pila.
+- Tamaño de palabra de 256-bits. --> Tamaño de elemento de pila 256-bits
+- El modelo de memoria es una matriz de bytes (word-addressed byte array)
+- Basado para facilitar el esquema la función keccack-256 y cálculos de curva elíptica.
+- Tamaño máximo de la pila: 1024.
+- Modelo de almacenamiento independiente: es una matriz de palabras direccionables (word addressable word array)
 
 ---
 
-A diferencia de la memoria, que es volátil, el almacenamiento no es volátil y se mantiene como parte del estado del sistema. Todas las ubicaciones en almacenamiento y memoria están bien definidas inicialmente como cero.
+A diferencia de la memoria, que es volátil, el almacenamiento no es volátil y se mantiene como parte del estado del sistema. Todas las ubicaciones de almacenamiento y memoria están definidas inicialmente como cero.
 
 La máquina no sigue la arquitectura estándar de la máquina de von Neumann
 
@@ -183,10 +184,6 @@ for i in range(1, 17):
 ---
 
 ## Demo
-
----
-
-### Tools
 
 ---
 
@@ -934,20 +931,119 @@ Stack:
 ```
 ---
 
+## Demo 6 - Excepciones
 
+### Out-of-gas (OOG)
+Para que se complete la ejecución del programa sería necesaria una cantidad de Gas igual a 9 como se puede observar en la tabla de opcodes. 
 
+```
+cost(PUSH1) + cost(PUSH1) + cost(ADD) = 9 > 8 
+```
 
+Fijamos una cantidad de Gas a la EVM de 8 y observamos cómo la EVM lanza la excepción:
 
+```
+$ evm --debug --gas 8 --code 6005600401 run
+#### TRACE ####
+PUSH1           pc=00000000 gas=8 cost=3
 
+PUSH1           pc=00000002 gas=5 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000005
 
+ADD             pc=00000004 gas=2 cost=3 ERROR: out of gas
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000004
+00000001  0000000000000000000000000000000000000000000000000000000000000005
 
+#### LOGS ####
+0x error: out of gas
+```
+### Invalid opcode
+En caso de que durante la ejecución del programa se encuentre con un opcode que la EVM no reconozca saltará excepción.
+```
+$ evm --debug --code 6005600447 run
+#### TRACE ####
+PUSH1           pc=00000000 gas=10000000000 cost=3
 
+PUSH1           pc=00000002 gas=9999999997 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000005
 
+Missing opcode 0x47pc=00000004 gas=9999999994 cost=3 ERROR: invalid opcode 0x47
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000004
+00000001  0000000000000000000000000000000000000000000000000000000000000005
 
+#### LOGS ####
+0x error: invalid opcode 0x47
+```
+### Invalid jump destination
 
+Reutilizamos el código anterior, a la hora de ejecutar JUMPI no encuentra un JUMPDEST y salta excepción.
 
+```Bytecode correcto: 6000355b6001900380600357```
 
+Modificamos la ruta del JUMPI para que salte excepción:
+```
+$ evm --debug --code 6000355b6001900380600257 --input 0000000000000000000000000000000000000000000000000000000000000002 run
+#### TRACE ####
+PUSH1           pc=00000000 gas=10000000000 cost=3
 
+CALLDATALOAD    pc=00000002 gas=9999999997 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000000
 
+JUMPDEST        pc=00000003 gas=9999999994 cost=1
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000002
 
+PUSH1           pc=00000004 gas=9999999993 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000002
 
+SWAP1           pc=00000006 gas=9999999990 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000001
+00000001  0000000000000000000000000000000000000000000000000000000000000002
+
+SUB             pc=00000007 gas=9999999987 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000002
+00000001  0000000000000000000000000000000000000000000000000000000000000001
+
+DUP1            pc=00000008 gas=9999999984 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000001
+
+PUSH1           pc=00000009 gas=9999999981 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000001
+00000001  0000000000000000000000000000000000000000000000000000000000000001
+
+JUMPI           pc=00000011 gas=9999999978 cost=10
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000002
+00000001  0000000000000000000000000000000000000000000000000000000000000001
+00000002  0000000000000000000000000000000000000000000000000000000000000001
+
+#### LOGS ####
+0x error: invalid jump destination (CALLDATALOAD) 2
+```
+### Stack underflow
+Puede suceder de múltiples formas. En este caso, se intenta eliminar un valor de la pila cuando ya está vacía provocando la excepción.
+
+```
+$ evm --debug --code 60055050 run
+#### TRACE ####
+PUSH1           pc=00000000 gas=10000000000 cost=3
+
+POP             pc=00000002 gas=9999999997 cost=2
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000005
+
+POP             pc=00000003 gas=9999999995 cost=2 ERROR: stack underflow (0 <=> 1)
+
+#### LOGS ####
+0x error: stack underflow (0 <=> 1)
+```

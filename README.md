@@ -69,12 +69,6 @@ La máquina se detiene inmediatamente e informa el problema al procesador de tra
 
 ---
 
-## Demo
-
----
-
-La computación en la EVM se realiza utilizando un lenguaje de códigos de bytes basado en pila que es como un cruce entre Bitcoin Script, ensamblaje tradicional y Lisp (la parte de Lisp se debe a la funcionalidad recursiva de envío de mensajes). Un programa en EVM es una secuencia de códigos de operación, como esta:
-
 La EVM es una máquina virtual basada en pila con una matriz de bytes de memoria y almacenamiento de clave-valor. Los elementos en la pila son palabras de 32 bytes, y todas las claves y valores almacenados son de 32 bytes. Hay más de 100 códigos de operación, divididos en categorías delineadas en múltiplos de 16. Se puede consultar aquí:
 
 

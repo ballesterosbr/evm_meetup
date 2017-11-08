@@ -79,7 +79,7 @@ La EVM es una máquina virtual basada en pila con una matriz de bytes de memoria
 [opcode,
 elementos que entran a la pila,
 elementos que salen de la pila,
-costa en gas]
+coste en gas]
 
 opcodes = {
 

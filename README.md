@@ -189,13 +189,13 @@ for i in range(1, 17):
 
 ### Demo 1 - Simple disasm
 
-Añade dos números de 1 byte cada uno a la pila y los suma.
+Añade a la pila dos números de un byte y realiza la suma de ambos.
 
 ```
 bytecode: 6005600401
 ```
-Guardar bytecode en archivo para poder ejecutar disasm
 
+Disasm del bytecode:
 ```
 $ echo "6005600401" >> add1 && evm disasm add1 
 6005600401
@@ -203,7 +203,11 @@ $ echo "6005600401" >> add1 && evm disasm add1
 000002: PUSH1 0x04
 000004: ADD
 ```
-EVM:
+
+- ```PUSH1``` añade a la pila un elemento de un byte. En este caso ```0x04``` y ```0x05```.
+- ```ADD``` realiza la suma de los dos elementos añadidos a la pila.
+
+EVM debug:
 ```
 $ evm --debug --codefile add1 run
 #### TRACE ####
@@ -223,24 +227,17 @@ Stack:
 00000000  0000000000000000000000000000000000000000000000000000000000000009
 ```
 
-Consideraciones:
-- Si se quieren sumar más de dos elementos --> Recordad esquema
-```python
-    0x01: ['ADD', 2, 1, 3],
-``` 
-- Si se añade un elemento de 2 bytes saltará excepción.
-
 ---
 
 ### Demo 2 - Simple disasm v.2
 
-Añade dos números de 2 byte cada uno a la pila y los suma.
+Análogo a la Demo 1 pero en este caso la suma se realiza de dos valores de dos bytes.
 
 ```
 bytecode: 61123461432101
 ```
-Guardar bytecode en archivo para poder ejecutar disasm
 
+Disasm del bytecode:
 ```
 $ echo "61123461432101" >> add2 && evm disasm add2
 61123461432101
@@ -248,7 +245,11 @@ $ echo "61123461432101" >> add2 && evm disasm add2
 000003: PUSH2 0x4321
 000006: ADD
 ```
-EVM:
+
+- ```PUSH2``` añade a la pila un elemento de dos bytes. En este caso ```0x1234``` y ```0x4321```.
+- ```ADD``` realiza la suma de los dos elementos añadidos a la pila.
+
+EVM debug:
 ```
 $ evm --debug --codefile add2 run
 #### TRACE ####
@@ -271,14 +272,18 @@ Stack:
 
 ### Demo 3 - Paso de parámetros como atributos de función.
 
-Suma tres elementos pasados como parámetos.
+Suma de tres elementos de 32 bytes pasados como input.
 
-Input tres elementos de 32 bytes (0x00...05, 0x00...04, 0x00...03)
+input:
+```0000000000000000000000000000000000000000000000000000000000000005```
+```0000000000000000000000000000000000000000000000000000000000000004```
+```0000000000000000000000000000000000000000000000000000000000000003```
 
 ```
 bytecode: 6000356020356040350101
 ```
-Guardar bytecode en archivo para poder ejecutar disasm
+
+Disasm del bytecode:
 
 ```
 $ echo "6000356020356040350101" >> add3 && evm disasm add3
@@ -291,9 +296,20 @@ $ echo "6000356020356040350101" >> add3 && evm disasm add3
 000008: CALLDATALOAD
 000009: ADD
 000010: ADD
-
 ```
-EVM:
+- ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
+- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
+	- ```0x00``` (00 en decimal): Obtiene los primeros 32 bytes del input.
+	- ```0x20``` (32 en decimal): Obtiene los siguientes 32 bytes a partir del valor ```0x20``` en hexadecimal.
+	- ```0x40``` (64 en decimal): Obtiene los siguientes 32 bytes a partir del valor ```0x40``` en hexadecimal.
+- Una vez los tres elementos están almacenado en la pila, la función ```ADD``` realizará la suma de los dos primeros elementos. 
+	- Recordad el esquema de la función ```ADD```, saca los dos primeros elementos de la pila y añade el resultado a la misma.
+	```python
+   		0x01: ['ADD', 2, 1, 3],
+	``` 
+- Se vuelve a ejecutar la instrucción ADD porque en este caso la suma es de tres elementos, por lo tanto suma el resultado del primer ADD con el tercer input.
+
+EVM debug:
 ```
 $ evm --debug --codefile add3 --input 000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000003 run
 #### TRACE ####
@@ -342,13 +358,15 @@ Stack:
 
 ### Demo 4 - Loop - Ineficiencia.
 
-Loop que disminuye una unidad por cada pasada a un input.
+En este ejemplo se tiene un counter que realiza la cuenta atrás de uno en uno hasta llegar a cero desde el valor que se le pase como input.
+
+En el primer caso tenemos un código ineficiente debido al elevado uso de memoria, almacenando y obteniendo el valor del counter constantemente en la memoria, lo que conlleva un consumo elevado de Gas.
 
 ```
 bytecode: 6000356000525b600160005103600052600051600657
 ```
-Guardar bytecode en archivo para poder ejecutar disasm
 
+Disasm del bytecode:
 ```
 $ echo "6000356000525b600160005103600052600051600657" >> testloop && evm disasm testloop
 6000356000525b600160005103600052600051600657
@@ -368,7 +386,25 @@ $ echo "6000356000525b600160005103600052600051600657" >> testloop && evm disasm 
 000019: PUSH1 0x06
 000021: JUMPI
 ```
-EVM:
+
+- ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
+- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
+- ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```MSTORE``` dónde almacenar el input obtenido.
+- ```MSTORE``` almacena en memoria el valor del input que se encontraba en la pila
+- ```JUMPDEST``` es la instrucción para indicar un destino válido de una operación de salto.
+- ```PUSH1``` añade el valor ```0x01``` a la pila para indicar cuál será el valor a reducir por el counter (una unidad en este ejemplo).
+- ```PUSH1``` añade el valor ```0x00``` a la pila para indicar la posición de memoria desde donde obtener el valor almacenado.
+- ```MLOAD``` realiza la carga del valor almacenado en memoria en la posición indicada (```0x00```).
+- ```SUB``` realiza la resta entre el valor obtenido y el valor que se añadió anteriormente. La operación consume los dos valores y añade a la pila el resultado.
+- ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```MSTORE``` dónde almacenar el resultado de ```SUB```.
+- ```MSTORE``` almacena en memoria el valor del resultado de ```SUB```.
+- ```PUSH1``` añade el valor ```0x00``` para indicar la posición de memoria desde donde obtener el valor almacenado.
+- ```MLOAD``` realiza la carga del valor almacenado en memoria en la posición indicada (```0x00```).
+- ```PUSH1``` añade el valor ```0x06``` a la pila para indicar a la instrucción ```JUMPI``` el destino en caso de que la ejecución sea satisfactoria.
+- ```JUMPI``` realiza un salto a la posición ```0x06``` en caso de que el valor obtenido desde la memoria sea distinto de cero. Esta instruccción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
+- A partir de aquí el código es recursivo y ejecutará las mismas instrucciones hasta que la condición se cumpla en ```JUMPI``` y el counter esté a cero, con lo cual el programa se detendrá habiendo completado su ejecución.
+
+EVM debug:
 ```
 $ evm --debug --codefile testloop --input 0000000000000000000000000000000000000000000000000000000000000003 run
 #### TRACE ####
@@ -620,12 +656,25 @@ Memory:
 00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 ```
-El anterior código es ineficiente en el uso de la memoria. En su lugar, se puede mantener el elemento en la pila en lugar de la memoria. Además la cantidad de Gas consumida es mucho más elevada que el de a continuación.
+
+El anterior código es ineficiente en el uso de la memoria. Se puede mantener el elemento en la pila en lugar de estar utilizando la memoria constantemente. Además la cantidad de Gas consumida en el código anterior es más elevada que el código de a continuación como se puede comprobar.
 
 ```
 bytecode: 6000355b6001900380600357
 ```
-Guardar bytecode en archivo para poder ejecutar disasm
+En este ejemplo, únicamente se utiliza la pila para la ejeucicón del counter.
+
+- ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
+- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
+- ```JUMPDEST``` es la instrucción para indicar un destino válido de una operación de salto.
+- ```PUSH1``` añade el valor ```0x01``` a la pila para indicar cuál será el valor a reducir por el counter (una unidad en este ejemplo).
+- ```SWAP``` es la instrucción para intercambiar la posición de los elementos almacenados en la pila.
+- ```SUB``` realiza la resta entre el valor obtenido y el valor que se añadió anteriormente. La operación consume los dos valores y añade a la pila el resultado.
+- DUP1 realiza un duplicado del valor resultante ```0x00...02``` porque posteriormente la instrucción JUMPI consumirá uno de ellos para la comprobación, permitiendo que no haya que rescatar el valor actual del contador en la siguiente instrucción.
+- ```PUSH1``` añade el valor ```0x03``` a la pila para indicar a la instrucción ```JUMPI``` el destino en caso de que la ejecución sea satisfactoria.
+- ```JUMPI``` realiza un salto a la posición ```0x03``` en caso de que el valor resultante sea distinto de cero. Esta instruccción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
+- A partir de aquí el código es recursivo y ejecutará las mismas instrucciones hasta que la condición se cumpla en ```JUMPI``` y el counter esté a cero, con lo cual el programa se detendrá habiendo completado su ejecución.
+
 
 ```
 $ echo "6000355b6001900380600357" >> testloop2 && evm disasm testloop2
@@ -738,76 +787,67 @@ DUP1            pc=00000008 gas=9999999932 cost=3
 Stack:
 00000000  0000000000000000000000000000000000000000000000000000000000000000
 
-PUSH1           pc=00000009 gas=9999999929 cost=3
-Stack:
-00000000  0000000000000000000000000000000000000000000000000000000000000000
-00000001  0000000000000000000000000000000000000000000000000000000000000000
-
-JUMPI           pc=00000011 gas=9999999926 cost=10
-Stack:
-00000000  0000000000000000000000000000000000000000000000000000000000000003
-00000001  0000000000000000000000000000000000000000000000000000000000000000
-00000002  0000000000000000000000000000000000000000000000000000000000000000
-
-STOP            pc=00000012 gas=9999999916 cost=0
-Stack:
-00000000  0000000000000000000000000000000000000000000000000000000000000000
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 ```
----
 
-### Demo 5 - Inputs de longitud variable en lugar de 32 bytes - (Operador de desplazamiento)
-
-Para tener que evitar introducir elementos de 32 bytes para cada operación, se recurre a la función CALLDATASIZE. Esta función sirve para obtener el tamaño de los datos de entrada. Sustituye a CALLDATALOAD que obtiene los elementos en formato big endian
-
-Por tanto, la finalidad es que 0000000000000000000000000000000000000000000000000000000000000003 pase a ser 03, simulando una operación de desplazamiento común. Matemáticamente, es dividir el input entre 256^(32-L) donde L es el valor del desplazamiento o el tamaño de los datos de entrada.
-
-En este caso lo fijaremos en 0x20 debido a que introduciremos un valor muy pequeño, 03.
-
-La función es la misma que en códigos anteriores, ir reduciendo el valor hasta que se quede a cero.
-```
-bytecode: 366020036101000a600035045b6001900380600c57
-```
-Guardar bytecode en archivo para poder ejecutar disasm
+El anterior código es ineficiente en el uso de la memoria. En su lugar, se puede mantener el elemento en la pila en lugar de la memoria. Además la cantidad de Gas consumida es mucho más elevada que el código de a continuación.
 
 ```
-$ echo  366020036101000a600035045b6001900380600c57 >> shift && evm disasm shift
-366020036101000a600035045b6001900380600c57
-000000: CALLDATASIZE
-000001: PUSH1 0x20
-000003: SUB
-000004: PUSH2 0x0100
-000007: EXP
-000008: PUSH1 0x00
-000010: CALLDATALOAD
-000011: DIV
-000012: JUMPDEST
-000013: PUSH1 0x01
-000015: SWAP1
-000016: SUB
-000017: DUP1
-000018: PUSH1 0x0c
-000020: JUMPI
+bytecode: 6000355b6001900380600357
+```
+En este ejemplo, únicamente se utiliza la pila para la ejeucicón del counter.
+
+- Se añade a la pila el valor 0x00 desde donde se rescatarán los siguientes 32 bytes.
+- CALLDATALOAD carga la variable que se le pasa como input.
+- JUMPDEST es la instrucción para indicar un destino válido de una operación de salto.
+- Se añade a la pila el valor 0x01 para posteriormente realizar la resta (SUB).
+- Se ejecuta la instrucción SWAP para cambiar el orden en la posición de los elementos en la pila.
+- SUB realiza la resta entre el valor rescatado 0x00...03 y 0x00...01 y añade a la pila el resultado 0x00...02.
+- DUP1 hace un duplicado del valor 0x00...02 porque posteriormente la instrucción JUMPI consumirá uno de ellos, permitiendo que no haya que rescatar el valor actual del contador.
+- 
+
+- Se añade a la pila el valor 0x01 para indicar la posición de memoria donde se almacenará el valor.
+- MSTORE guarda en memoria dentro de la posición indicada el valor que se ha cargado.
+
+
+```
+$ echo "6000355b6001900380600357" >> testloop2 && evm disasm testloop2
+6000355b6001900380600357
+000000: PUSH1 0x00
+000002: CALLDATALOAD
+000003: JUMPDEST
+000004: PUSH1 0x01
+000006: SWAP1
+000007: SUB
+000008: DUP1
+000009: PUSH1 0x03
+000011: JUMPI
 ```
 EVM:
 ```
-$ evm --debug --codefile shift --input 03 run
+$ evm --debug --codefile testloop2 --input 0000000000000000000000000000000000000000000000000000000000000003 run
 #### TRACE ####
-CALLDATASIZE    pc=00000000 gas=10000000000 cost=2
+PUSH1           pc=00000000 gas=10000000000 cost=3
 
-PUSH1           pc=00000001 gas=9999999998 cost=3
+CALLDATALOAD    pc=00000002 gas=9999999997 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000000
+
+JUMPDEST        pc=00000003 gas=9999999994 cost=1
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000003
+
+PUSH1           pc=00000004 gas=9999999993 cost=3
+Stack:
+00000000  0000000000000000000000000000000000000000000000000000000000000003
+
+SWAP1           pc=00000006 gas=9999999990 cost=3
 Stack:
 00000000  0000000000000000000000000000000000000000000000000000000000000001
+00000001  0000000000000000000000000000000000000000000000000000000000000003
 
-SUB             pc=00000003 gas=9999999995 cost=3
-Stack:
-00000000  0000000000000000000000000000000000000000000000000000000000000020
-00000001  0000000000000000000000000000000000000000000000000000000000000001
-
-PUSH2           pc=00000004 gas=9999999992 cost=3
-Stack:
-00000000  000000000000000000000000000000000000000000000000000000000000001f
-
-EXP             pc=00000007 gas=9999999989 cost=60
+SUB             pc=00000007 gas=9999999987 cost=3
 Stack:
 00000000  0000000000000000000000000000000000000000000000000000000000000100
 00000001  000000000000000000000000000000000000000000000000000000000000001f

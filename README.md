@@ -19,7 +19,7 @@ Los contratos viven en la cadena de bloques en un formato binario específico de
 
 - Cada paso computacional que se realice en la ejecución de un programa debe ser pagado por adelantado (Gas). --> DDoS protection.
 
-- Los programas sólo interactuan a través de la transmisión de matrices de datos únicas. --> No acceden a otros programas.
+- Los programas sólo interactúan a través de la transmisión de matrices de datos únicas. --> No acceden a otros programas.
 
 - La ejecución de programas es en modo sandbox. Un programa puede alterar su propio estado y acceder al mismo, además puede lanzar la ejecución de otro programa. --> No accede al estado de otros programas.
 
@@ -288,7 +288,7 @@ $ echo "6000356000525b600160005103600052600051600657" >> testloop && evm disasm 
 - ```PUSH1``` añade el valor ```0x00``` para indicar la posición de memoria desde donde obtener el valor almacenado.
 - ```MLOAD``` realiza la carga del valor almacenado en memoria en la posición indicada (```0x00```).
 - ```PUSH1``` añade el valor ```0x06``` a la pila para indicar a la instrucción ```JUMPI``` el destino en caso de que la ejecución sea satisfactoria.
-- ```JUMPI``` realiza un salto a la posición ```0x06``` en caso de que el valor obtenido desde la memoria sea distinto de cero. Esta instruccción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
+- ```JUMPI``` realiza un salto a la posición ```0x06``` en caso de que el valor obtenido desde la memoria sea distinto de cero. Esta instrucción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
 - A partir de aquí el código es recursivo y ejecutará las mismas instrucciones hasta que la condición se cumpla en ```JUMPI``` y el counter esté a cero, con lo cual el programa se detendrá habiendo completado su ejecución.
 
 EVM debug:
@@ -549,7 +549,7 @@ El anterior código es ineficiente en el uso de la memoria. Se puede mantener el
 ```
 bytecode: 6000355b6001900380600357
 ```
-En este ejemplo, únicamente se utiliza la pila para la ejeucicón del counter.
+En este ejemplo, únicamente se utiliza la pila para la ejecución del counter.
 
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
 - ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
@@ -559,7 +559,7 @@ En este ejemplo, únicamente se utiliza la pila para la ejeucicón del counter.
 - ```SUB``` realiza la resta entre el valor obtenido y el valor que se añadió anteriormente. La operación consume los dos valores y añade a la pila el resultado.
 - ```DUP1``` realiza un duplicado del valor resultante ```0x00...02``` porque posteriormente la instrucción ```JUMPI``` consumirá uno de ellos para la comprobación, permitiendo que no haya que rescatar el valor actual del contador en la siguiente instrucción.
 - ```PUSH1``` añade el valor ```0x03``` a la pila para indicar a la instrucción ```JUMPI``` el destino en caso de que la ejecución sea satisfactoria.
-- ```JUMPI``` realiza un salto a la posición ```0x03``` en caso de que el valor resultante sea distinto de cero. Esta instruccción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
+- ```JUMPI``` realiza un salto a la posición ```0x03``` en caso de que el valor resultante sea distinto de cero. Esta instrucción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
 - A partir de aquí el código es recursivo y ejecutará las mismas instrucciones hasta que la condición se cumpla en ```JUMPI``` y el counter esté a cero, con lo cual el programa se detendrá habiendo completado su ejecución.
 
 ```
@@ -690,7 +690,7 @@ La función es la misma que en códigos anteriores, un counter que va reduciendo
 bytecode: 366020036101000a600035045b6001900380600c57
 ```
 
-Disasm del byteccode:
+Disasm del bytecode:
 ```
 $ echo  366020036101000a600035045b6001900380600c57 >> shift && evm disasm shift
 366020036101000a600035045b6001900380600c57
@@ -718,7 +718,7 @@ $ echo  366020036101000a600035045b6001900380600c57 >> shift && evm disasm shift
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
 - ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
 	- ```0300000000000000000000000000000000000000000000000000000000000000```
-- ```DIV``` realiza la operación de división entre el input y el valor resultante de la exponencial. Obteniendo como resultado un desplazamiento del input hacila derecha 31 bytes.
+- ```DIV``` realiza la operación de división entre el input y el valor resultante de la exponencial. Obteniendo como resultado un desplazamiento del input hacia la derecha 31 bytes.
 	- ```0000000000000000000000000000000000000000000000000000000000000003```
 - ```JUMPDEST``` es la instrucción para indicar un destino válido de una operación de salto.
 - ```PUSH1``` añade el valor ```0x01``` a la pila para indicar cuál será el valor a reducir por el counter (una unidad en este ejemplo).
@@ -726,7 +726,7 @@ $ echo  366020036101000a600035045b6001900380600c57 >> shift && evm disasm shift
 - ```SUB``` realiza la resta entre el valor añadido y el valor resultante de la división. La operación consume los dos valores y añade a la pila el resultado.
 - ```DUP1``` realiza un duplicado del valor resultante ```0x00...02``` porque posteriormente la instrucción ```JUMPI``` consumirá uno de ellos para la comprobación, permitiendo que no haya que rescatar el valor actual del contador en la siguiente instrucción.
 - ```PUSH1``` añade el valor ```0x0c``` a la pila para indicar a la instrucción ```JUMPI``` el destino en caso de que la ejecución sea satisfactoria.
-- ```JUMPI``` realiza un salto a la posición ```0x0c``` en caso de que el valor resultante sea distinto de cero. Esta instruccción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
+- ```JUMPI``` realiza un salto a la posición ```0x0c``` en caso de que el valor resultante sea distinto de cero. Esta instrucción consume los dos valores, el destino de la instrucción de salto y el valor a comprobar.
 - A partir de aquí el código es recursivo y ejecutará las mismas instrucciones hasta que la condición se cumpla en ```JUMPI``` y el counter esté a cero, con lo cual el programa se detendrá habiendo completado su ejecución.
 
 EVM debug:
@@ -883,7 +883,7 @@ Acceso a la ubicación 0x0100 de memoria con un coste muy elevado inicialmente. 
 ```
 bytecode: 6101005151
 ```
-Disasm del byteccode:
+Disasm del bytecode:
 ```
 $ echo  6101005151 >> memory && evm disasm memory
 6101005151
@@ -891,7 +891,7 @@ $ echo  6101005151 >> memory && evm disasm memory
 000003: MLOAD
 000004: MLOAD
 ```
-- ```PUSH2``` añade el valor ```0x0100``` a la pila para indicar la posición de memoria a la que se accederña mediante MLOAD.
+- ```PUSH2``` añade el valor ```0x0100``` a la pila para indicar la posición de memoria a la que se accederá mediante MLOAD.
 - ```MLOAD``` realiza la carga del valor almacenado en memoria en la posición indicada (```0x0100```). Inicialmente es cero.
 - ```MLOAD``` realiza de nuevo la carga del valor almacenado en memoria en la posición indicada (```0x0100```).
 
@@ -960,7 +960,7 @@ Se puede ver que al realizar el primer almacenamiento es mucho más costoso, est
 bytecode: 60026000556001600055
 ```
 
-Disasm del byteccode:
+Disasm del bytecode:
 ```
 $ echo  60026000556001600055 >> memory && evm disasm memory
 60026000556001600055

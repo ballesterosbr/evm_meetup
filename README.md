@@ -161,6 +161,7 @@ Stack:
 Suma de tres elementos de 32 bytes pasados como input.
 
 input:
+
 ```0000000000000000000000000000000000000000000000000000000000000005```
 ```0000000000000000000000000000000000000000000000000000000000000004```
 ```0000000000000000000000000000000000000000000000000000000000000003```
@@ -193,7 +194,7 @@ $ echo "6000356020356040350101" >> add3 && evm disasm add3
 	```python
    		0x01: ['ADD', 2, 1, 3],
 	``` 
-- Se vuelve a ejecutar la instrucción ADD porque en este caso la suma es de tres elementos, por lo tanto suma el resultado del primer ADD con el tercer input.
+- Se vuelve a ejecutar la instrucción ```ADD``` porque en este caso la suma es de tres elementos, por lo tanto suma el resultado del primer ```ADD``` con el tercer input.
 
 EVM debug:
 ```
@@ -679,9 +680,9 @@ Stack:
 
 ### Demo 5 - Input de longitud variable en lugar de 32 bytes - (Operador de desplazamiento)
 
-Para tener que evitar introducir elementos de 32 bytes para cada operación, se recurre a la función CALLDATASIZE. Esta función sirve para obtener el tamaño de los datos de entrada. Sustituye a CALLDATALOAD que obtiene los elementos en formato big-endian.
+Para tener que evitar introducir elementos de 32 bytes para cada operación, se recurre a la función ```CALLDATASIZE```. Esta función sirve para obtener el tamaño de los datos de entrada. Sustituye a ```CALLDATALOAD``` que obtiene los elementos en formato big-endian.
 
-Por tanto, la finalidad es que 0000000000000000000000000000000000000000000000000000000000000003 pase a ser 03, simulando una operación de desplazamiento común. Matemáticamente, es dividir el input entre 256^(32-L) donde L es el tamaño de los datos de entrada.
+Por tanto, la finalidad es que ```0000000000000000000000000000000000000000000000000000000000000003``` pase a ser ```03```, simulando una operación de desplazamiento común. Matemáticamente, es dividir el input entre ```256^(32-L)``` donde L es el tamaño de los datos de entrada.
 
 La función es la misma que en códigos anteriores, un counter que va reduciendo su valor hasta quedarse a cero.
 
@@ -709,7 +710,7 @@ $ echo  366020036101000a600035045b6001900380600c57 >> shift && evm disasm shift
 000018: PUSH1 0x0c
 000020: JUMPI
 ```
-- CALLDATASIZE obtiene el tamaño del input, en este caso el tamaño del input es de un byte.
+- ```CALLDATASIZE``` obtiene el tamaño del input, en este caso el tamaño del input es de un byte.
 - ```PUSH1``` añade el valor ```0x20``` a la pila para indicar en hexadecimal la cantidad de bytes totales. Esto es el valor decimal 32 que forma parte del exponente de la fórmula anterior.
 - ```SUB``` realiza la resta entre el valor añadido a la pila y el tamaño del input obtenido. La operación consume los dos valores y añade a la pila el resultado.
 - ```PUSH2``` añade el valor ```0x100``` a la pila para indicar en hexadecimal la base de la fórmula anterior.
@@ -873,7 +874,7 @@ Stack:
 
 ## Demo 6 - MLOAD-MSTORE vs SLOAD-SSTORE
 
-Anteriormente se han visto dos ejemplos de almacenamiento, tanto en memoria como en pila. Esta memoria no tiene límite de acceso, se irá generando en función de la solicitud de acceso a ella. Además si nos fijamos en los opcodes asociados a memoria (MLOAD, MSTORE) el coste de gas es muy reducido en comparación con almacenamiento (SLOAD, SSTORE).
+Anteriormente se han visto dos ejemplos de almacenamiento, tanto en memoria como en pila. Esta memoria no tiene límite de acceso, se irá generando en función de la solicitud de acceso a ella. Además si nos fijamos en los opcodes asociados a memoria (```MLOAD```, ```MSTORE```) el coste de gas es muy reducido en comparación con almacenamiento (```SLOAD```, ```SSTORE```).
 
 ### Coste de acceso a memoria
 
@@ -953,9 +954,7 @@ STOP            pc=00000005 gas=9999999964 cost=0
 
 ### Coste de almacenamiento
 
-Almacenar por primera vez un valor tiene un coste muy elevado, Gas = 20000. Este almacenamiento es sustituir el cero inicial por el valor que le indicamos.
-
-Si a esa misma posición se le quiere actualizar el valor, el coste será de 5000 unidades de Gas, algo muy elevado también pero no tanto en comparación con el primer acceso al almacenamiento.
+Se puede ver que al realizar el primer almacenamiento es mucho más costoso, esto es debido a que se modifica el valor inicial (```0x00```) por ```0x02```. En cambio al hacerlo por segunda vez, modificado el valor ```0x02``` por ```0x01``` tiene un coste elevado pero más reducido.
 
 ```
 bytecode: 60026000556001600055
@@ -980,7 +979,6 @@ $ echo  60026000556001600055 >> memory && evm disasm memory
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar la posición de almacenamiento donde se almacenará el valor.
 - ```SSTORE``` almacena el valor en la posición que se le ha indicado.
 
-Se puede ver que al realizar el primer almacenamiento es mucho más costoso, esto es debido a que se modifica el valor inicial (```0x00```) por ```0x02```. En cambio al hacerlo por segunda vez modificado el valor ```0x02``` por ```0x01``` tiene un coste elevado pero más reducido.
 
 EVM debug:
 
@@ -1073,11 +1071,11 @@ Stack:
 ```
 ### Invalid jump destination
 
-Reutilizamos el código anterior, a la hora de ejecutar JUMPI no encuentra un JUMPDEST y salta excepción.
+Reutilizamos el código anterior, a la hora de ejecutar ```JUMPI``` no encuentra un ```JUMPDEST``` y salta excepción.
 
 ```Bytecode correcto: 6000355b6001900380600357```
 
-Modificamos la ruta del JUMPI para que salte excepción:
+Modificamos la ruta del ```JUMPI``` para que salte excepción:
 ```
 $ evm --debug --code 6000355b6001900380600257 --input 0000000000000000000000000000000000000000000000000000000000000002 run
 #### TRACE ####

@@ -1,4 +1,4 @@
-# evm_meetup
+# EVM in Depth
 
 ## Intro
 

@@ -50,7 +50,7 @@ Se podría decir que la EVM es una cuasi máquina de Turing; "cuasi" por el hech
 
 - Arquitectura basada en pila.
 - Tamaño de palabra de 256-bits. --> Tamaño de elemento de pila 256-bits.
-- Basado para facilitar el esquema la función keccack-256 y cálculos de curva elíptica.
+- Basado para facilitar el esquema la función keccak-256 y ECDSA.
 - Tamaño máximo de la pila: 1024.
 - El modelo de memoria es una matriz de bytes (word-addressed byte array).
 - El modelo de almacenamiento (independiente) es una matriz de palabras direccionables (word-addressable word array).
@@ -872,7 +872,7 @@ Stack:
 ```
 ---
 
-## Demo 6 - MLOAD-MSTORE vs SLOAD-SSTORE
+### Demo 6 - MLOAD-MSTORE vs SLOAD-SSTORE
 
 Anteriormente se han visto dos ejemplos de almacenamiento, tanto en memoria como en pila. Esta memoria no tiene límite de acceso, se irá generando en función de la solicitud de acceso a ella. Además si nos fijamos en los opcodes asociados a memoria (```MLOAD```, ```MSTORE```) el coste de gas es muy reducido en comparación con almacenamiento (```SLOAD```, ```SSTORE```).
 
@@ -1022,7 +1022,7 @@ Storage:
 
 ---
 
-## Demo 7 - Excepciones
+### Demo 7 - Excepciones
 
 ### Out-of-gas (OOG)
 Para que se complete la ejecución del programa sería necesaria una cantidad de Gas igual a 9 como se puede observar en la tabla de opcodes. 
@@ -1140,7 +1140,7 @@ POP             pc=00000003 gas=9999999995 cost=2 ERROR: stack underflow (0 <=> 
 ```
 ---
 
-## Demo 8 - Análisis Smart Contract desplegado
+### Demo 8 - Análisis Smart Contract desplegado
 
 ```
 pragma solidity ^0.4.18;

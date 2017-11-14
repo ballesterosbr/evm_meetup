@@ -2,7 +2,7 @@
 
 ## Intro
 
-La máquina virtual Ethereum (EVM) es el entorno de tiempo de ejecución (runtime) para contratos inteligentes en Ethereum. Se encuentra aislado, lo que significa que el código que se ejecuta dentro de la EVM no tiene acceso a la red, sistema de archivos u otros procesos de la blockchain. Los contratos inteligentes pueden tener acceso limitado a otros contratos inteligentes.
+La Máquina Vrtual de Ethereum (EVM) es el entorno de tiempo de ejecución (runtime) para contratos inteligentes en Ethereum. Se encuentra aislada, lo que significa que el código que se ejecuta dentro de la EVM no tiene acceso a la red, sistema de archivos u otros procesos de la blockchain. Los contratos inteligentes pueden tener acceso limitado a otros contratos inteligentes.
 
 Los contratos viven en la cadena de bloques en un formato binario específico de Ethereum (EVM bytecode). Sin embargo, los contratos generalmente se escriben en un lenguaje de alto nivel de Ethereum, se compilan en bytecode usando un compilador de EVM y finalmente se cargan en la cadena de bloques utilizando un cliente de Ethereum. 
 
@@ -12,7 +12,7 @@ Los contratos viven en la cadena de bloques en un formato binario específico de
 
 - Proporcionar seguridad y ejecución de código no confiable en ordenadores de todo el mundo.
 - Prevenir denegación de servicios (DDoS).
-- Asegurar que programas no tienen acceso al estado de otros.
+- Asegurar que los programas no tienen acceso al estado de otros.
 - Asegurar que no haya interferencias.
 
 ## Restricciones
@@ -189,7 +189,7 @@ $ echo "6000356020356040350101" >> add3 && evm disasm add3
 	- ```0x00``` (00 en decimal): Obtiene los primeros 32 bytes del input.
 	- ```0x20``` (32 en decimal): Obtiene los siguientes 32 bytes a partir del valor ```0x20``` en hexadecimal.
 	- ```0x40``` (64 en decimal): Obtiene los siguientes 32 bytes a partir del valor ```0x40``` en hexadecimal.
-- Una vez los tres elementos están almacenado en la pila, la función ```ADD``` realizará la suma de los dos primeros elementos. 
+- Una vez los tres elementos están almacenados en la pila, la función ```ADD``` realizará la suma de los dos primeros elementos. 
 	- Recordad el esquema de la función ```ADD```, saca los dos primeros elementos de la pila y añade el resultado a la misma.
 	```python
    		0x01: ['ADD', 2, 1, 3],
@@ -275,9 +275,9 @@ $ echo "6000356000525b600160005103600052600051600657" >> testloop && evm disasm 
 ```
 
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
-- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
+- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente.
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```MSTORE``` dónde almacenar el input obtenido.
-- ```MSTORE``` almacena en memoria el valor del input que se encontraba en la pila
+- ```MSTORE``` almacena en memoria el valor del input que se encontraba en la pila.
 - ```JUMPDEST``` es la instrucción para indicar un destino válido de una operación de salto.
 - ```PUSH1``` añade el valor ```0x01``` a la pila para indicar cuál será el valor a reducir por el counter (una unidad en este ejemplo).
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar la posición de memoria desde donde obtener el valor almacenado.
@@ -552,7 +552,7 @@ bytecode: 6000355b6001900380600357
 En este ejemplo, únicamente se utiliza la pila para la ejecución del counter.
 
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
-- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
+- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente.
 - ```JUMPDEST``` es la instrucción para indicar un destino válido de una operación de salto.
 - ```PUSH1``` añade el valor ```0x01``` a la pila para indicar cuál será el valor a reducir por el counter (una unidad en este ejemplo).
 - ```SWAP1``` es la instrucción para intercambiar la posición de los dos primeros elementos almacenados en la pila.
@@ -716,7 +716,7 @@ $ echo  366020036101000a600035045b6001900380600c57 >> shift && evm disasm shift
 - ```PUSH2``` añade el valor ```0x100``` a la pila para indicar en hexadecimal la base de la fórmula anterior.
 - ```EXP``` realiza una exponencial con los valores almacenados en la pila. Será ```256^(32-1)```. Consume los dos valores y añade el resultado a la pila.
 - ```PUSH1``` añade el valor ```0x00``` a la pila para indicar a la instrucción ```CALLDATALOAD``` desde donde obtener el input.
-- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente:
+- ```CALLDATALOAD``` carga en la pila en notación big-endian el input desde donde se le ha indicado anteriormente.
 	- ```0300000000000000000000000000000000000000000000000000000000000000```
 - ```DIV``` realiza la operación de división entre el input y el valor resultante de la exponencial. Obteniendo como resultado un desplazamiento del input hacia la derecha 31 bytes.
 	- ```0000000000000000000000000000000000000000000000000000000000000003```
@@ -954,7 +954,7 @@ STOP            pc=00000005 gas=9999999964 cost=0
 
 ### Coste de almacenamiento
 
-Se puede ver que al realizar el primer almacenamiento es mucho más costoso, esto es debido a que se modifica el valor inicial (```0x00```) por ```0x02```. En cambio al hacerlo por segunda vez, modificado el valor ```0x02``` por ```0x01``` tiene un coste elevado pero más reducido.
+Se puede ver que al realizar el primer almacenamiento es mucho más costoso, esto es debido a que se modifica el valor inicial (```0x00```) por ```0x02```. En cambio al hacerlo por segunda vez, modificado el valor ```0x02``` por ```0x01```, tiene un coste elevado pero más reducido.
 
 ```
 bytecode: 60026000556001600055
@@ -1213,7 +1213,7 @@ hay una comprobación que realiza el programa para verificar si el input introdu
 
 En este caso se informa a ```CALLDATALOAD``` que debe realizar la carga del input a partir de la posición ```0x04``` y ```0x24```, porque los cuatro bytes iniciales se corresponden con el identificador de la función (```a5f3c23b```).
 
-Las tres primeras instrucciones se corresponden con el puntero de memoria libre (*free memory pointer*). Existen operaciones en Solidity que pueden requerir una memoria temporal mayor de 64 bytes y no entren en el *scratch space*. Estas operaciones se colocarán en el puntero de memoria libre, pero debido a reducido tiempo de vida, este puntero no se actualiza.
+Las tres primeras instrucciones se corresponden con el puntero de memoria libre (*free memory pointer*). Existen operaciones en Solidity que pueden requerir una memoria temporal mayor de 64 bytes y no entren en el *scratch space*. Estas operaciones se colocarán en el puntero de memoria libre, pero debido a su reducido tiempo de vida, este puntero no se actualiza.
 
 Continuando con el programa, se realiza la comprobación comentada anteriormente. Esto se realiza a través del operador desplazamiento visto anteriormente, en este caso hay una variación en el desplazamiento de cuatro bytes. Por lo tanto la fórmula resultante es: ```256^(32-4)``` 
 

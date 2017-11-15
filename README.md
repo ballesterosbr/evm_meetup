@@ -2,7 +2,7 @@
 
 ## Intro
 
-La Máquina Vrtual de Ethereum (EVM) es el entorno de tiempo de ejecución (runtime) para contratos inteligentes en Ethereum. Se encuentra aislada, lo que significa que el código que se ejecuta dentro de la EVM no tiene acceso a la red, sistema de archivos u otros procesos de la blockchain. Los contratos inteligentes pueden tener acceso limitado a otros contratos inteligentes.
+La Máquina Virtual de Ethereum (EVM) es el entorno de tiempo de ejecución (runtime) para contratos inteligentes en Ethereum. Se encuentra aislada, lo que significa que el código que se ejecuta dentro de la EVM no tiene acceso a la red, sistema de archivos u otros procesos de la blockchain. Los contratos inteligentes pueden tener acceso limitado a otros contratos inteligentes.
 
 Los contratos viven en la cadena de bloques en un formato binario específico de Ethereum (EVM bytecode). Sin embargo, los contratos generalmente se escriben en un lenguaje de alto nivel de Ethereum, se compilan en bytecode usando un compilador de EVM y finalmente se cargan en la cadena de bloques utilizando un cliente de Ethereum. 
 
